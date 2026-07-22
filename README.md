@@ -1,6 +1,25 @@
 # malaria-campaign-analytics
 # Automated Data Pipeline & Performance Dashboard for Integrated Campaigns
+```mermaid
+graph TD
+    %% Styling Configuration for Black on White look
+    classDef bwStyle fill:#fff,stroke:#000,stroke-width:2px,color:#000;
+    
+    A[schema.sql<br>Defines Database Architecture]:::bwStyle
+    B[Raw Field Data<br>RedRose / Kobo Ingestion]:::bwStyle
+    C[pipeline.py<br>Python ETL & Validation Engine]:::bwStyle
+    D[(campaign_data.db<br>Structured SQLite Database)]:::bwStyle
+    E[data_quality_logs<br>Command Center Validation Flags]:::bwStyle
+    F[queries.sql<br>Operational Analytics & Coverage Metrics]:::bwStyle
+    G[Real-Time Decision Making<br>Target Monitoring & Course Correction]:::bwStyle
 
+    A -->|Builds & Structures| D
+    B -->|Ingests Raw Data| C
+    C -->|Validates & Cleans| D
+    C -->|Logs Flaws & Anomalies| E
+    D -->|Feeds Raw Rows| F
+    F -->|Outputs Actionable Data| G
+    
 This repository showcases an end-to-end data pipeline design built specifically to solve data reconciliation delays and field synchronization errors during large-scale digitized public health initiatives (such as SMC and ITN integrations).
 
 ## Features
