@@ -1,8 +1,8 @@
 # malaria-campaign-analytics
 # Automated Data Pipeline & Performance Dashboard for Integrated Campaigns
+
 ```mermaid
 graph TD
-    %% Styling Configuration for Black on White look
     classDef bwStyle fill:#fff,stroke:#000,stroke-width:2px,color:#000;
     
     A[schema.sql<br>Defines Database Architecture]:::bwStyle
@@ -19,8 +19,7 @@ graph TD
     C -->|Logs Flaws & Anomalies| E
     D -->|Feeds Raw Rows| F
     F -->|Outputs Actionable Data| G
-    ```
-    
+```    
 This repository showcases an end-to-end data pipeline design built specifically to solve data reconciliation delays and field synchronization errors during large-scale digitized public health initiatives (such as SMC and ITN integrations).
 
 ## Features
