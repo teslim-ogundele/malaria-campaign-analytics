@@ -1,0 +1,77 @@
+import pandas as pd
+import sqlite3
+import json
+from datetime import datetime
+
+def run_campaign_pipeline():
+    print(f"[{datetime.now()}] Initializing Campaign Data Pipeline...")
+    
+    # 1. Connect to local SQLite database
+    conn = sqlite3.connect('campaign_data.db')
+    cursor = conn.cursor()
+    
+    # Ensure tables are built
+    with open('schema.sql', 'r') as f:
+        cursor.executescript(f.read())
+    conn.commit()
+
+    # 2. Mocking Mobile App / RedRose Platform Ingestion Data
+    # In a real environment, this would ingest a CSV export or hit an API endpoint
+    mock_field_data = [
+        {
+            "registration_id": "REG-001", "settlement_id": "SET-101", "household_head": "Aliyu Ibrahim",
+            "child_name": "Musa Aliyu", "child_age_months": 24, "spaq_administered_cycle1": 1,
+            "itn_delivered": 2, "gps_latitude": 10.5105, "gps_longitude": 7.4124, "device_id": "DEV-8821"
+        },
+        {
+            # ANOMALY 1: Out of range age (SMC criteria is 3-59 months)[cite: 3]
+            "registration_id": "REG-002", "settlement_id": "SET-101", "household_head": "Grace John",
+            "child_name": "Emmanuel John", "child_age_months": 72, "spaq_administered_cycle1": 1,
+            "itn_delivered": 1, "gps_latitude": 10.5110, "gps_longitude": 7.4130, "device_id": "DEV-8821"
+        },
+        {
+            # ANOMALY 2: Bad GPS coordinates outside campaign operational borders[cite: 2, 3]
+            "registration_id": "REG-003", "settlement_id": "SET-102", "household_head": "Fatima Umar",
+            "child_name": "Zainab Umar", "child_age_months": 12, "spaq_administered_cycle1": 1,
+            "itn_delivered": 1, "gps_latitude": 0.0000, "gps_longitude": 0.0000, "device_id": "DEV-9942"
+        }
+    ]
+    
+    df = pd.DataFrame(mock_field_data)
+    
+    # 3. Apply Data Validation Logic & Clean Records[cite: 2]
+    clean_records = []
+    
+    for index, row in df.iterrows():
+        errors = []
+        
+        # Check SMC Eligibility Age Group (3 to 59 Months)[cite: 3]
+        if not (3 <= row['child_age_months'] <= 59):
+            errors.append(('OUT_OF_AGE_RANGE', 'CRITICAL'))
+            
+        # Check for invalid GPS readings[cite: 2]
+        if row['gps_latitude'] == 0.0 or row['gps_longitude'] == 0.0:
+            errors.append(('INVALID_GPS_COORDINATES', 'WARNING'))
+            
+        # If errors exist, log them to the command center database module for tracking[cite: 2]
+        if errors:
+            for error_type, severity in errors:
+                cursor.execute("""
+                    INSERT INTO data_quality_logs (record_id, issue_type, severity)
+                    VALUES (?, ?, ?)
+                """, (row['registration_id'], error_type, severity))
+        else:
+            clean_records.append(row.to_dict())
+            
+    # 4. Bulk upload clean records into the operational database[cite: 2]
+    if clean_records:
+        clean_df = pd.DataFrame(clean_records)
+        clean_df.to_sql('beneficiary_registrations', conn, if_exists='append', index=False)
+        print(f"Successfully processed and uploaded {len(clean_records)} clean records.")
+        
+    conn.commit()
+    print(f"Data Quality Logging complete. {cursor.execute('SELECT COUNT(*) FROM data_quality_logs').fetchone()[0]} anomalies identified.")
+    conn.close()
+
+if __name__ == "__main__":
+    run_campaign_pipeline()
