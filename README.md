@@ -18,7 +18,8 @@ graph TD
     C -->|Validates & Cleans| D
     C -->|Logs Flaws & Anomalies| E
     D -->|Feeds Raw Rows| F
-    F -->|Outputs Actionable Data| G```
+    F -->|Outputs Actionable Data| G
+    ```
     
 This repository showcases an end-to-end data pipeline design built specifically to solve data reconciliation delays and field synchronization errors during large-scale digitized public health initiatives (such as SMC and ITN integrations).
 
