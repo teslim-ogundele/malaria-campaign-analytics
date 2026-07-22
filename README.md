@@ -14,3 +14,7 @@ This repository showcases an end-to-end data pipeline design built specifically 
 * **Database Engine:** SQL (SQLite / PostgreSQL environment compatible)
 * **Documentation Standards:** Markdown Product Architecture Specification
 
+To clone this project,
+
+bash
+git clone [https://github.com/teslim-ogundele/malaria-campaign-analytics.git]
