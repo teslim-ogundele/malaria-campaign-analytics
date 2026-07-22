@@ -1,0 +1,24 @@
+-- Operational Performance & Target Monitoring Dashboard Queries
+
+-- 1. Administrative Campaign Coverage Report
+-- Compares actual field entries against preset master microplans to find coverage gaps
+SELECT 
+    t.state,
+    t.lga,
+    t.ward,
+    COUNT(b.registration_id) AS total_children_reached,
+    t.target_children_3_59m AS microplan_target,
+    ROUND((COUNT(b.registration_id) * 100.0) / t.target_children_3_59m, 2) AS administrative_coverage_percentage
+FROM campaign_targets t
+LEFT JOIN beneficiary_registrations b ON t.settlement_id = b.settlement_id
+GROUP BY t.settlement_id;
+
+-- 2. Command Center Pipeline: Active Data Anomaly Summary
+-- Used to immediately flag hardware configuration or human errors to field teams
+SELECT 
+    issue_type,
+    severity,
+    COUNT(*) as incident_count
+FROM data_quality_logs
+GROUP BY issue_type, severity
+ORDER BY incident_count DESC;
