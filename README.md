@@ -6,7 +6,7 @@ graph TD
     classDef bwStyle fill:#fff,stroke:#000,stroke-width:2px,color:#000;
     
     A[schema.sql<br>Defines Database Architecture]:::bwStyle
-    B[Raw Field Data<br>Digital Data Collection Tools]:::bwStyle
+    B[Data from Digital Data Collection Tools]:::bwStyle
     C[pipeline.py<br>Python ETL & Validation Engine]:::bwStyle
     D[(campaign_data.db<br>Structured SQLite Database)]:::bwStyle
     E[data_quality_logs<br>Command Center Validation Flags]:::bwStyle
